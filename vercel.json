@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/index.py": {
+    "api/*.py": {
       "maxDuration": 10,
       "excludeFiles": "{backend/**,frontend/**,reports/**,.claude/**,ml_pishing.ipynb,phishing_pipeline_guide.md,plan_implementacion_phishing.md,data/raw/iscx_urls.csv,data/raw/openphish.txt,data/raw/phishtank.csv,data/raw/urlhaus.csv,data/raw/umbrella.csv,data/processed/**}"
     }
