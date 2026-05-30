@@ -28,6 +28,7 @@ Thumbs.db
 # Project-specific generated or local-only files
 .claude/
 data/raw/
+AGENTS.md
 
 # Python build artifacts
 build/

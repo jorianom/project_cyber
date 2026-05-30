@@ -24,17 +24,7 @@ from pydantic import BaseModel
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 MODEL_DIR = Path(os.getenv("MODEL_DIR", str(ROOT_DIR / "models")))
-MODEL_CANDIDATES: list[Path] = []
-_model_path_env = os.getenv("MODEL_PATH", "").strip()
-if _model_path_env:
-    MODEL_CANDIDATES.append(Path(_model_path_env))
-MODEL_CANDIDATES.extend(
-    [
-        MODEL_DIR / os.getenv("MODEL_FILENAME", "pipeline_final.joblib"),
-        MODEL_DIR / os.getenv("MODEL_FALLBACK_FILENAME", "pipeline_fixed.joblib"),
-        MODEL_DIR / "pipeline.joblib",
-    ]
-)
+MODEL_PATH = MODEL_DIR / "pipeline.joblib"
 
 DEFAULT_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "0.5"))
 DEFAULT_SOURCE = os.getenv("DEFAULT_SOURCE", "github-pages")
@@ -56,17 +46,16 @@ def _load_bundle() -> dict[str, Any]:
     if _BUNDLE is not None:
         return _BUNDLE
 
-    for candidate in MODEL_CANDIDATES:
-        if candidate and candidate.exists():
-            artifact = joblib.load(candidate)
-            if isinstance(artifact, dict):
-                _BUNDLE = artifact
-            else:
-                _BUNDLE = {"pipe": artifact}
-            _BUNDLE["_path"] = str(candidate)
-            return _BUNDLE
+    if MODEL_PATH.exists():
+        artifact = joblib.load(MODEL_PATH)
+        if isinstance(artifact, dict):
+            _BUNDLE = artifact
+        else:
+            _BUNDLE = {"pipe": artifact}
+        _BUNDLE["_path"] = str(MODEL_PATH)
+        return _BUNDLE
 
-    raise FileNotFoundError("No model artifact found in models/. Expected pipeline_final.joblib or pipeline_fixed.joblib.")
+    raise FileNotFoundError(f"No model artifact found at {MODEL_PATH}. Train the model first.")
 
 
 def _normalize_url(url: str) -> str:
@@ -261,22 +250,23 @@ def _explain(url: str) -> dict[str, Any]:
     top_domains = bundle.get("tranco_top10k", set())
     threshold = float(bundle.get("threshold", DEFAULT_THRESHOLD))
 
+    feats = _extract_features(url, top_domains)
+
     try:
         ext = EXTRACT(url)
         root = f"{ext.domain}.{ext.suffix}".lower()
         if top_domains and root in top_domains:
-            return {
-                "url": url,
-                "probability": 0.01,
-                "phishing": False,
-                "verdict": "LEGITIMA",
-                "flags": [],
-                "note": "Dominio en Top-10k - override aplicado",
-            }
+            if feats.get("has_shortener", 0) == 0 and feats.get("has_login_kw", 0) == 0:
+                return {
+                    "url": url,
+                    "probability": 0.01,
+                    "phishing": False,
+                    "verdict": "LEGITIMA",
+                    "flags": [],
+                    "note": "Dominio en Top-10k - override aplicado",
+                }
     except Exception:
         pass
-
-    feats = _extract_features(url, top_domains)
     frame = pd.DataFrame([feats])
     if features_order:
         frame = frame.reindex(columns=features_order, fill_value=0)
