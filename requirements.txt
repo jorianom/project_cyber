@@ -1,0 +1,8 @@
+joblib
+numpy
+pandas
+requests
+scikit-learn
+tldextract
+google-auth
+fastapi
