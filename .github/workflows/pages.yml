@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -24,6 +27,11 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Inject Configuration
+        run: |
+          sed -i 's|API_BASE: ".*"|API_BASE: "${{ secrets.API_BASE_URL || "https://project-cyber-inky.vercel.app" }}"|' docs/index.html
+          sed -i 's|SOURCE_TAG: ".*"|SOURCE_TAG: "${{ secrets.SOURCE_TAG || "github-pages" }}"|' docs/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

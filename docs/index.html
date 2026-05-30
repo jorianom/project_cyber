@@ -3,359 +3,394 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Phishing URL Detector</title>
+  <title>Detector de Phishing</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #0f172a;
-      --bg2: #111827;
-      --card: rgba(255, 255, 255, 0.08);
-      --card-border: rgba(255, 255, 255, 0.12);
-      --text: #e5eefb;
-      --muted: #9fb0c7;
-      --accent: #34d399;
-      --accent-2: #60a5fa;
-      --danger: #fb7185;
-      --warning: #f59e0b;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --primary: #0A192F;
+      --accent: #3B82F6;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E5E7EB;
+      --text: #111827;
+      --text-muted: #6B7280;
+      
+      --safe: #16A34A;
+      --safe-bg: #DCFCE7;
+      --warn: #D97706;
+      --warn-bg: #FEF3C7;
+      --danger: #DC2626;
+      --danger-bg: #FEE2E2;
+
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(96, 165, 250, 0.32), transparent 36%),
-        radial-gradient(circle at 80% 20%, rgba(52, 211, 153, 0.20), transparent 28%),
-        linear-gradient(160deg, var(--bg), var(--bg2));
-    }
-
-    main {
-      width: min(1100px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 32px 0 48px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      align-items: stretch;
-      margin-bottom: 24px;
-    }
-
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-
-    .intro {
-      padding: 30px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      gap: 8px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      color: #d7e7ff;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      padding: 60px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 600px;
     }
 
     h1 {
-      margin: 18px 0 12px;
-      font-size: clamp(2rem, 4vw, 4rem);
-      line-height: 0.95;
-      letter-spacing: -0.04em;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
     }
 
-    .lead {
-      max-width: 60ch;
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.6;
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
     }
 
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .chip {
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      color: #d8e7fb;
-      font-size: 0.9rem;
-    }
-
-    .card {
-      padding: 24px;
-    }
-
-    label {
-      display: block;
-      margin: 0 0 8px;
-      color: #d9e4f5;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    input, button, textarea {
-      font: inherit;
-    }
-
-    input, textarea {
+    .search-container {
       width: 100%;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(15, 23, 42, 0.75);
-      color: var(--text);
-      padding: 14px 16px;
-      outline: none;
+      max-width: 600px;
+      margin-bottom: 24px;
     }
 
-    input:focus, textarea:focus {
-      border-color: rgba(96, 165, 250, 0.8);
-      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
-    }
-
-    .grid {
-      display: grid;
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 12px;
-      align-items: end;
-    }
-
-    .actions {
+    .info-card {
+      width: 100%;
+      max-width: 600px;
+      background: #EFF6FF;
+      border: 1px solid #DBEAFE;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 48px;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+      gap: 12px;
+      align-items: center;
     }
 
-    button {
+    .info-card-text {
+      font-size: 0.9rem;
+      color: #1E40AF;
+    }
+
+    .info-card-icon {
+      font-size: 1.2rem;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      background: var(--card);
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      transition: focus-within 0.2s;
+    }
+
+    .input-group:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    input[type="text"] {
+      flex: 1;
       border: none;
-      border-radius: 14px;
-      padding: 14px 18px;
-      color: #04111f;
-      background: linear-gradient(135deg, #7dd3fc, #34d399);
-      cursor: pointer;
-      font-weight: 700;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-      box-shadow: 0 14px 40px rgba(52, 211, 153, 0.18);
-    }
-
-    button.secondary {
-      background: rgba(255, 255, 255, 0.08);
+      padding: 12px 20px;
+      font-size: 1rem;
+      outline: none;
+      background: transparent;
       color: var(--text);
-      box-shadow: none;
     }
 
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: 0.6; cursor: wait; transform: none; }
-
-    pre {
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      background: rgba(2, 6, 23, 0.68);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 18px;
-      border-radius: 18px;
-      min-height: 220px;
-      color: #d9e4f5;
+    button#checkBtn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
     }
 
-    .result {
+    button#checkBtn:hover { opacity: 0.9; }
+    button#checkBtn:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+    #resultsArea {
+      width: 100%;
+      max-width: 800px;
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .main-card {
+      padding: 32px;
+      border-radius: 24px;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .main-card.safe { background: var(--safe-bg); border-color: #BBF7D0; color: #14532D; }
+    .main-card.warn { background: var(--warn-bg); border-color: #FDE68A; color: #78350F; }
+    .main-card.bad { background: var(--danger-bg); border-color: #FECACA; color: #7F1D1D; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .verdict-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .features-grid {
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 16px;
     }
 
-    .status {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      padding: 10px 14px;
-      border-radius: 999px;
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .feature-card:hover { transform: translateY(-2px); }
+
+    .feature-name {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .feature-value {
+      display: block;
+      font-size: 1.1rem;
       font-weight: 700;
+      color: var(--primary);
     }
 
-    .status.safe { background: rgba(52, 211, 153, 0.14); color: #9bf3cf; }
-    .status.bad { background: rgba(251, 113, 133, 0.14); color: #fecdd3; }
-    .status.warn { background: rgba(245, 158, 11, 0.14); color: #fde68a; }
+    footer {
+      margin-top: auto;
+      padding-top: 60px;
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+    }
 
-    .footer {
+    .settings-trigger {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #settingsPanel {
+      display: none;
       margin-top: 20px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.6;
+      padding: 20px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: left;
     }
 
-    @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; }
-      .row { grid-template-columns: 1fr; }
+    .config-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .config-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .input-group { flex-direction: column; padding: 12px; }
+      button#checkBtn { width: 100%; }
+      h1 { font-size: 2rem; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <section class="hero">
-      <div class="panel intro">
-        <div class="eyebrow">Phishing detector API</div>
-        <h1>Clasificación de URLs con logging en Google Sheets</h1>
-        <p class="lead">
-          Esta página consume el endpoint Python de Vercel en <code>/api/check</code>, devuelve el mismo contrato de inferencia que el notebook y luego registra cada intento como auditoría best-effort.
-        </p>
-        <div class="chips">
-          <span class="chip">Modelo: joblib persistido</span>
-          <span class="chip">CORS habilitado</span>
-          <span class="chip">Sheets como log append-only</span>
-          <span class="chip">Backend sin estado</span>
-        </div>
-      </div>
-
-      <div class="panel card">
-        <label for="apiBase">API base URL</label>
-        <input id="apiBase" value="https://your-vercel-project.vercel.app" autocomplete="off" spellcheck="false" />
-
-        <div class="grid">
-          <div>
-            <label for="url">URL a verificar</label>
-            <input id="url" value="http://login-secure-update-account.xyz/amazon/signin" autocomplete="off" spellcheck="false" />
-          </div>
-          <div>
-            <label for="source">Source</label>
-            <input id="source" value="github-pages" autocomplete="off" spellcheck="false" />
-          </div>
-        </div>
-
-        <div class="actions">
-          <button id="checkBtn">Verificar URL</button>
-          <button class="secondary" id="phishBtn" type="button">Ejemplo phishing</button>
-          <button class="secondary" id="safeBtn" type="button">Ejemplo legítimo</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="hero">
-      <div class="panel card result">
-        <div id="summary" class="status warn">Esperando consulta</div>
-        <pre id="output">La respuesta JSON aparecerá aquí.</pre>
-      </div>
-
-      <div class="panel card">
-        <label>Notas de despliegue</label>
-        <pre>1. Configura ALLOWED_ORIGINS con el dominio de GitHub Pages.
-2. Configura GOOGLE_SERVICE_ACCOUNT_JSON o las variables divididas.
-3. Usa el archivo joblib existente en /models sin retrenar.
-4. Si Sheets falla, la API sigue respondiendo la predicción.</pre>
-      </div>
-    </section>
-
-    <div class="footer">
-      La UI usa CORS y puede funcionar con GET o POST, pero el formulario envía POST para mantener el body simple y soportar metadatos como source.
+  <header>
+    <h1>Detector de Phishing</h1>
+    <p class="subtitle">Analiza URLs y detecta posibles amenazas en segundos</p>
+  </header>
+  <section class="search-container">
+    <div class="input-group">
+      <input type="text" id="urlInput" placeholder="Ingresa una URL..." autocomplete="off">
+      <button id="checkBtn">Analizar</button>
     </div>
-  </main>
+  </section>
 
+  <section class="info-card">
+    <span class="info-card-icon">🛡️</span>
+    <p class="info-card-text">
+      Este sistema utiliza inteligencia artificial para analizar patrones sospechosos en la estructura de la dirección web, ayudándote a identificar sitios fraudulentos antes de que ingreses tus datos.
+    </p>
+  </section>
+
+  <section id="resultsArea">
+    <div id="mainResult" class="main-card">
+      <span id="statusBadge" class="status-badge">Checkeando...</span>
+      <p id="verdictText" class="verdict-text">Analizando parámetros de seguridad...</p>
+    </div>
+    <div class="features-grid" id="featuresGrid"></div>
+  </section>
+  <footer>
+    <!-- Configuración técnica movida a objeto CONFIG en el script -->
+    <p style="font-size: 0.8rem; color: var(--text-muted); opacity: 0.6;">
+      Sistema de auditoría activa · v1.0.0
+    </p>
+  </footer>
   <script>
-    const apiBase = document.getElementById('apiBase');
-    const urlInput = document.getElementById('url');
-    const sourceInput = document.getElementById('source');
+    const CONFIG = {
+      API_BASE: "https://project-cyber-inky.vercel.app",
+      SOURCE_TAG: "github-pages"
+    };
+
+    const urlInput = document.getElementById('urlInput');
     const checkBtn = document.getElementById('checkBtn');
-    const phishBtn = document.getElementById('phishBtn');
-    const safeBtn = document.getElementById('safeBtn');
-    const summary = document.getElementById('summary');
-    const output = document.getElementById('output');
-
-    const setStatus = (kind, text) => {
-      summary.className = `status ${kind}`;
-      summary.textContent = text;
+    const resultsArea = document.getElementById('resultsArea');
+    const mainResult = document.getElementById('mainResult');
+    const statusBadge = document.getElementById('statusBadge');
+    const verdictText = document.getElementById('verdictText');
+    const featuresGrid = document.getElementById('featuresGrid');
+    
+    const createFeatureCard = (name, value) => {
+      const div = document.createElement('div');
+      div.className = 'feature-card';
+      div.innerHTML = `<span class="feature-name">${name}</span><span class="feature-value">${value}</span>`;
+      return div;
     };
-
     const render = (payload) => {
-      output.textContent = JSON.stringify(payload, null, 2);
+      resultsArea.style.display = 'flex';
+      featuresGrid.innerHTML = '';
       if (payload.error) {
-        setStatus('warn', payload.error);
+        mainResult.className = 'main-card warn';
+        statusBadge.textContent = 'Error';
+        verdictText.textContent = payload.error;
         return;
       }
-      const verdict = payload.verdict || 'UNKNOWN';
-      if (payload.phishing) {
-        setStatus('bad', `${verdict} · prob=${Number(payload.probability).toFixed(4)}`);
-      } else {
-        setStatus('safe', `${verdict} · prob=${Number(payload.probability).toFixed(4)}`);
+      const prob = Number(payload.probability);
+      const isPhishing = payload.phishing;
+      let state = 'safe';
+      let statusLabel = 'SAFE';
+      let message = 'Esta URL parece segura';
+      if (isPhishing && prob > 0.8) {
+        state = 'bad';
+        statusLabel = 'PHISHING';
+        message = 'Posible phishing detectado';
+      } else if (isPhishing || prob > 0.4) {
+        state = 'warn';
+        statusLabel = 'SUSPICIOUS';
+        message = 'Esta URL es sospechosa';
       }
-      if (payload.logging && payload.logging.status !== 'ok') {
-        summary.title = payload.logging.message || 'Sheets logging warning';
-      } else {
-        summary.title = '';
-      }
+      mainResult.className = `main-card ${state}`;
+      statusBadge.textContent = statusLabel;
+      verdictText.textContent = message;
+
+      // Extract details from flags or features
+      const hasFlag = (text) => (payload.flags || []).some(f => f.toLowerCase().includes(text.toLowerCase()));
+      
+      const features = [
+        { name: 'Probabilidad', value: `${(prob * 100).toFixed(1)}%` },
+        { name: 'HTTPS', value: urlInput.value.trim().startsWith('https') ? 'Sí' : 'No' },
+        { name: 'Keywords Login', value: hasFlag('login') || hasFlag('account') ? 'Detección (+) ' : 'No detectadas' },
+        { name: 'Punycode', value: hasFlag('punycode') ? 'Sí (Sospechoso)' : 'No detectado' },
+        { name: 'Dígitos Dominio', value: hasFlag('digit') ? 'Presencia' : 'Normal' }
+      ];
+      features.forEach(f => {
+        featuresGrid.appendChild(createFeatureCard(f.name, f.value));
+      });
     };
-
     const submit = async () => {
-      const base = apiBase.value.replace(/\/$/, '');
       const url = urlInput.value.trim();
-      const source = sourceInput.value.trim() || 'github-pages';
-      const endpoint = `${base}/api/check`;
+      
+      // Validación robusta
+      const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.\/?%&=]*)?$/i;
+      const isValid = url.length >= 4 && (url.includes('.') || url.startsWith('localhost')) && urlPattern.test(url);
 
-      if (!url) {
-        render({ error: 'Provide a URL first.' });
+      if (!isValid) {
+        urlInput.focus();
+        urlInput.style.borderColor = 'var(--danger)';
+        urlInput.style.boxShadow = '0 0 0 4px rgba(220, 38, 38, 0.1)';
+        
+        // Opcional: mostrar un mensaje rápido en el botón
+        const originalText = checkBtn.textContent;
+        checkBtn.textContent = 'URL Inválida';
+        checkBtn.style.background = 'var(--danger)';
+        
+        setTimeout(() => {
+          urlInput.style.borderColor = '';
+          urlInput.style.boxShadow = '';
+          checkBtn.textContent = originalText;
+          checkBtn.style.background = '';
+        }, 2000);
         return;
       }
 
+      const base = CONFIG.API_BASE.replace(/\/$/, '');
+      const source = CONFIG.SOURCE_TAG;
+      const endpoint = `${base}/api/check`;
       checkBtn.disabled = true;
-      setStatus('warn', 'Consultando API...');
-
+      checkBtn.textContent = 'Analizando...';
+      resultsArea.style.display = 'none';
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, source }),
         });
-
-        const payload = await response.json();
-        if (!response.ok) {
-          render({ ...payload, http_status: response.status });
-          return;
-        }
-        render(payload);
+        const data = await response.json();
+        render(data);
       } catch (error) {
-        render({ error: String(error) });
+        render({ error: 'No se pudo conectar con el servidor.' });
       } finally {
         checkBtn.disabled = false;
+        checkBtn.textContent = 'Analizar';
       }
     };
-
     checkBtn.addEventListener('click', submit);
-    phishBtn.addEventListener('click', () => {
-      urlInput.value = 'http://login-secure-update-account.xyz/amazon/signin';
-      submit();
-    });
-    safeBtn.addEventListener('click', () => {
-      urlInput.value = 'https://docs.python.org/3/library/urllib.parse.html';
-      submit();
-    });
-
-    urlInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') submit();
-    });
+    urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   </script>
 </body>
 </html>
