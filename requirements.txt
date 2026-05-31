@@ -2,7 +2,7 @@ joblib
 numpy
 pandas
 requests
-scikit-learn
+scikit-learn==1.6.1
 tldextract
 google-auth
 fastapi

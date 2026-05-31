@@ -12,7 +12,7 @@ Backend file: `api/index.py` (FastAPI app).
 
 ## CORS and request metadata
 
-- `ALLOWED_ORIGINS`: comma-separated origins. Default `*`.
+- `ALLOWED_ORIGINS`: comma-separated origins. Default `*`. Use exact origins without a trailing slash, for example `https://jorianom.me`.
 - `DEFAULT_SOURCE`: default request source label, default `github-pages`.
 
 ## Google Sheets logging (best-effort)
