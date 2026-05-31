@@ -345,9 +345,15 @@
     const submit = async () => {
       const url = urlInput.value.trim();
       
-      // Validación robusta
-      const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.\/?%&=]*)?$/i;
-      const isValid = url.length >= 4 && (url.includes('.') || url.startsWith('localhost')) && urlPattern.test(url);
+      // Acepta URLs con IPs, userinfo (@) y query strings más libres.
+      const candidate = url.match(/^https?:\/\//i) ? url : `http://${url}`;
+      let parsedUrl;
+      try {
+        parsedUrl = new URL(candidate);
+      } catch {
+        parsedUrl = null;
+      }
+      const isValid = Boolean(parsedUrl && parsedUrl.hostname && parsedUrl.hostname.includes('.'));
 
       if (!isValid) {
         urlInput.focus();
