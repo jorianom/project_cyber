@@ -29,9 +29,14 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Inject Configuration
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          SOURCE_TAG: ${{ secrets.SOURCE_TAG }}
         run: |
-          sed -i 's|API_BASE: ".*"|API_BASE: "${{ secrets.API_BASE_URL || "https://project-cyber-inky.vercel.app" }}"|' docs/index.html
-          sed -i 's|SOURCE_TAG: ".*"|SOURCE_TAG: "${{ secrets.SOURCE_TAG || "github-pages" }}"|' docs/index.html
+          api_base="${API_BASE_URL:-https://project-cyber-inky.vercel.app}"
+          source_tag="${SOURCE_TAG:-github-pages}"
+          sed -i "s|API_BASE: \".*\"|API_BASE: \"${api_base}\"|" docs/index.html
+          sed -i "s|SOURCE_TAG: \".*\"|SOURCE_TAG: \"${source_tag}\"|" docs/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
