@@ -28,7 +28,13 @@ MODEL_PATH = MODEL_DIR / "pipeline.joblib"
 
 DEFAULT_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "0.5"))
 DEFAULT_SOURCE = os.getenv("DEFAULT_SOURCE", "github-pages")
-ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",") if origin.strip()]
+
+
+ALLOWED_ORIGINS = [
+    _normalize_origin(origin)
+    for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",")
+    if origin.strip()
+]
 
 EXTRACT = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=False)
 _NEUTRAL_SUBS = {"www", "www2", "m", "mobile", "wap", "docs", "api", "cdn", "static", "dev"}
