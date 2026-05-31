@@ -30,11 +30,12 @@ DEFAULT_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "0.5"))
 DEFAULT_SOURCE = os.getenv("DEFAULT_SOURCE", "github-pages")
 
 
-ALLOWED_ORIGINS = [
-    _normalize_origin(origin)
-    for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",")
-    if origin.strip()
-]
+# Parse `ALLOWED_ORIGINS` env var. Use a single star (`*`) to allow all origins.
+raw_allowed = os.getenv("ALLOWED_ORIGINS", "*").strip()
+if raw_allowed == "*" or raw_allowed == "":
+    ALLOWED_ORIGINS: list[str] = ["*"]
+else:
+    ALLOWED_ORIGINS = [orig.strip().rstrip("/") for orig in raw_allowed.split(",") if orig.strip()]
 
 EXTRACT = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=False)
 _NEUTRAL_SUBS = {"www", "www2", "m", "mobile", "wap", "docs", "api", "cdn", "static", "dev"}
