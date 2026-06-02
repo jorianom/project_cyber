@@ -53,6 +53,17 @@ def _load_bundle() -> dict[str, Any]:
             _BUNDLE = artifact
         else:
             _BUNDLE = {"pipe": artifact}
+            
+        meta_path = MODEL_PATH.with_name("meta.json")
+        if meta_path.exists():
+            try:
+                meta = json.loads(meta_path.read_text("utf-8"))
+                _BUNDLE.update(meta)
+                if "tranco_top10k" in _BUNDLE:
+                    _BUNDLE["tranco_top10k"] = set(_BUNDLE["tranco_top10k"])
+            except Exception:
+                pass
+
         _BUNDLE["_path"] = str(MODEL_PATH)
         return _BUNDLE
 
